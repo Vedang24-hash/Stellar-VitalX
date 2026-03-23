@@ -1,115 +1,98 @@
-# VitalX - Decentralized Health Records
+# VitalX — Decentralized Health Records
 
-Blockchain-based health records management system built on Stellar with IPFS storage.
+VitalX is a Web3 health records platform where patients upload medical files to IPFS and record ownership permanently on the Stellar blockchain. No central server holds your data.
 
-## Features
+---
 
-- Blockchain storage on Stellar testnet
-- Decentralized file storage via IPFS (Pinata)
-- Freighter wallet integration
-- Immutable ownership proof
+## How It Works
+
+1. Connect your **Freighter** wallet
+2. Upload a health record (PDF, image, doc)
+3. File is stored on **IPFS** via Pinata
+4. The IPFS hash is written to a **Soroban smart contract** on Stellar testnet
+5. You sign the transaction — ownership is yours, on-chain
+
+---
 
 ## Tech Stack
 
-- React + Vite
-- Stellar (Soroban smart contracts)
-- IPFS (Pinata)
-- Freighter Wallet
+| Layer | Technology |
+|---|---|
+| Frontend | React + Vite |
+| Wallet | Freighter (Stellar) |
+| Blockchain | Stellar Testnet + Soroban |
+| Smart Contract | Rust (soroban-sdk) |
+| File Storage | IPFS via Pinata |
 
-## Prerequisites
+---
 
+## Getting Started
+
+### Prerequisites
 - Node.js v16+
-- Stellar CLI
-- Freighter Wallet extension
-- Pinata account
+- [Freighter Wallet](https://www.freighter.app/) browser extension
+- [Pinata](https://pinata.cloud) account (for IPFS uploads)
 
-## Setup
+### Install
 
-1. **Install dependencies**
 ```bash
 npm install
 ```
 
-2. **Configure environment**
-```bash
-cp .env.example .env
-```
+### Configure `.env`
 
-Edit `.env`:
 ```env
 VITE_PINATA_JWT=your_pinata_jwt_token
-VITE_CONTRACT_ID=CDJKZ2AXQ7GX5UDJUCR3AC3B3IYZ6SELRKEGFJ7IYYIUMLWLZWJM5L4O
+VITE_CONTRACT_ID=CCPDOVHLBFUJUVP4LXGIDC73OEVJAXKKXGXB3SRWJMNGG3XL7NJZKXSQ
+VITE_STELLAR_NETWORK=testnet
+VITE_STELLAR_RPC_URL=https://soroban-testnet.stellar.org
+VITE_STELLAR_HORIZON_URL=https://horizon-testnet.stellar.org
 ```
 
-3. **Get Pinata JWT**
-   - Sign up at https://pinata.cloud
-   - Create API key with `pinFileToIPFS` permission
-   - Copy JWT token to `.env`
+Get your Pinata JWT from [app.pinata.cloud](https://app.pinata.cloud) → API Keys → New Key (enable `pinFileToIPFS`).
 
-## Deploy Smart Contract (Optional)
-
-To deploy your own contract:
-
-```powershell
-.\deploy-contract.ps1
-```
-
-The script will:
-- Configure Stellar testnet
-- Create deployer identity
-- Deploy contract
-- Update `.env` automatically
-
-## Development
+### Run
 
 ```bash
 npm run dev
 ```
 
-Open http://localhost:5173
+Open [http://localhost:5173](http://localhost:5173)
 
-## Usage
-
-1. **Connect Wallet** - Click "Connect Wallet" and approve in Freighter
-2. **Upload File** - Select file → Confirm → Sign transaction in Freighter
-3. **View Records** - All uploaded records appear in dashboard
-
-## How It Works
-
-1. File uploads to IPFS (decentralized storage)
-2. IPFS hash recorded on Stellar blockchain
-3. User signs transaction and pays gas fees
-4. Ownership permanently recorded on-chain
+---
 
 ## Smart Contract
 
-**Contract ID**: `CDJKZ2AXQ7GX5UDJUCR3AC3B3IYZ6SELRKEGFJ7IYYIUMLWLZWJM5L4O`
-
-**Functions**:
-- `upload_record` - Store record reference
-- `get_record` - Retrieve by ID
-- `get_records_by_uploader` - Get user's records
-- `record_count` - Total records
-
-**Explorer**: https://stellar.expert/explorer/testnet/contract/CDJKZ2AXQ7GX5UDJUCR3AC3B3IYZ6SELRKEGFJ7IYYIUMLWLZWJM5L4O
-
-## Network
-
+- **Contract ID**: `CCPDOVHLBFUJUVP4LXGIDC73OEVJAXKKXGXB3SRWJMNGG3XL7NJZKXSQ`
 - **Network**: Stellar Testnet
-- **RPC**: https://soroban-testnet.stellar.org
-- **Passphrase**: `Test SDF Network ; September 2015`
+- **Explorer**: [View on Stellar Expert](https://stellar.expert/explorer/testnet/contract/CCPDOVHLBFUJUVP4LXGIDC73OEVJAXKKXGXB3SRWJMNGG3XL7NJZKXSQ)
+
+Functions: `upload_record` · `get_record` · `get_records_by_uploader` · `record_count`
+
+### Deploy Your Own Contract
+
+```powershell
+.\deploy-contract.ps1
+```
+
+The script handles identity setup, testnet funding check, build, deploy, and `.env` update automatically.
+
+---
 
 ## Project Structure
 
 ```
-├── contracts/          # Rust smart contract
+├── contracts/              # Rust Soroban smart contract
+│   └── src/lib.rs
 ├── src/
-│   ├── pages/         # React components
-│   ├── services/      # Blockchain & IPFS logic
-│   └── styles/        # CSS
-├── deploy-contract.ps1
-└── .env               # Configuration
+│   ├── pages/              # React pages (landing, login, dashboard)
+│   ├── services/           # Stellar, Pinata, Supabase integrations
+│   └── styles/             # CSS
+├── deploy-contract.ps1     # One-click deployment script
+└── .env                    # Local config (not committed)
 ```
+
+---
 
 ## License
 
