@@ -4,12 +4,18 @@ VitalX is a Web3 health records platform where patients upload medical files to 
 
 ---
 
+## Live Demo
+
+Deployed on Vercel: [stellar-vitalx.vercel.app](https://stellar-vitalx.vercel.app)
+
+---
+
 ## How It Works
 
-1. Connect your **Freighter** wallet
+1. Connect your Freighter wallet
 2. Upload a health record (PDF, image, doc)
-3. File is stored on **IPFS** via Pinata
-4. The IPFS hash is written to a **Soroban smart contract** on Stellar testnet
+3. File is stored on IPFS via Pinata
+4. The IPFS hash is written to a Soroban smart contract on Stellar testnet
 5. You sign the transaction — ownership is yours, on-chain
 
 ---
@@ -23,6 +29,42 @@ VitalX is a Web3 health records platform where patients upload medical files to 
 | Blockchain | Stellar Testnet + Soroban |
 | Smart Contract | Rust (soroban-sdk) |
 | File Storage | IPFS via Pinata |
+| Deployment | Vercel |
+| CI/CD | GitHub Actions |
+
+---
+
+## CI/CD Pipeline
+
+The pipeline is defined in `.github/workflows/frontend-ci-cd.yml` and runs automatically on every push or pull request to `main`.
+
+**What it does:**
+- Checks out the code
+- Sets up Node.js 20
+- Runs `npm ci` to install dependencies
+- Runs `npm run build` with production env vars injected from GitHub Secrets
+- Fails the pipeline if the build breaks, blocking bad code from reaching production
+
+**Vercel CD:**
+Vercel is connected directly to this GitHub repo. Every push to `main` that passes the CI build triggers an automatic production deployment. Pull requests get isolated preview deployments automatically.
+
+**GitHub Secrets required:**
+- `VITE_PINATA_JWT`
+- `VITE_CONTRACT_ID`
+
+---
+
+## Mobile Responsive UI
+
+The entire UI is built mobile-first with CSS media queries at `640px` and `768px` breakpoints:
+
+- Navbar collapses and stacks cleanly on small screens
+- Hero section text scales down for readability
+- Feature cards switch to single-column layout
+- Patient dashboard header stacks vertically
+- Records table transforms into labeled card rows instead of overflowing horizontally
+- All buttons go full-width on mobile
+- Viewport meta tag ensures correct scaling on all devices
 
 ---
 
@@ -75,20 +117,20 @@ Functions: `upload_record` · `get_record` · `get_records_by_uploader` · `reco
 .\deploy-contract.ps1
 ```
 
-The script handles identity setup, testnet funding check, build, deploy, and `.env` update automatically.
-
 ---
 
 ## Project Structure
 
 ```
+├── .github/workflows/
+│   ├── frontend-ci-cd.yml  # Frontend CI pipeline
+│   └── build-contract.yml  # Smart contract build
 ├── contracts/              # Rust Soroban smart contract
-│   └── src/lib.rs
 ├── src/
 │   ├── pages/              # React pages (landing, login, dashboard)
 │   ├── services/           # Stellar, Pinata, Supabase integrations
-│   └── styles/             # CSS
-├── deploy-contract.ps1     # One-click deployment script
+│   └── styles/             # Responsive CSS
+├── deploy-contract.ps1     # One-click contract deployment
 └── .env                    # Local config (not committed)
 ```
 
