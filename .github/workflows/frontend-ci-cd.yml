@@ -1,4 +1,4 @@
-name: Frontend CI/CD
+name: Frontend CI
 
 on:
   push:
@@ -12,18 +12,7 @@ on:
       - 'contracts/**'
       - '**.md'
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Only one deployment at a time
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
 jobs:
-  # ── CI: runs on every push and PR ──────────────────────────────
   build:
     name: Build & Check
     runs-on: ubuntu-latest
@@ -44,30 +33,8 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          # Inject secrets as env vars so Vite can pick them up at build time
           VITE_PINATA_JWT: ${{ secrets.VITE_PINATA_JWT }}
           VITE_CONTRACT_ID: ${{ secrets.VITE_CONTRACT_ID }}
           VITE_STELLAR_NETWORK: testnet
           VITE_STELLAR_RPC_URL: https://soroban-testnet.stellar.org
           VITE_STELLAR_HORIZON_URL: https://horizon-testnet.stellar.org
-
-      - name: Upload build artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-  # ── CD: deploys to GitHub Pages only on main ───────────────────
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
-
-    steps:
-      - name: Deploy
-        id: deploy
-        uses: actions/deploy-pages@v4
