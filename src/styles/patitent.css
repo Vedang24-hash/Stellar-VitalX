@@ -198,3 +198,98 @@
   color: #4b5563;
   font-size: 20px;
 }
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .header-content h1 {
+    font-size: 20px;
+  }
+
+  .header-info {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .wallet-badge {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  .patient-main {
+    padding: 20px 15px;
+  }
+
+  .upload-card {
+    padding: 25px 15px;
+  }
+
+  .upload-card h2 {
+    font-size: 20px;
+  }
+
+  .upload-button {
+    padding: 13px 24px;
+    font-size: 15px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .records-section {
+    padding: 20px 15px;
+  }
+
+  .records-section h2 {
+    font-size: 18px;
+  }
+
+  /* Stack table rows as cards on mobile */
+  .records-table table,
+  .records-table thead,
+  .records-table tbody,
+  .records-table th,
+  .records-table td,
+  .records-table tr {
+    display: block;
+  }
+
+  .records-table thead {
+    display: none;
+  }
+
+  .records-table tr {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    padding: 12px;
+    background: #fafafa;
+  }
+
+  .records-table td {
+    padding: 6px 0;
+    border: none;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .records-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #111827;
+    font-size: 12px;
+    min-width: 80px;
+  }
+
+  .hash-cell {
+    font-size: 12px;
+    word-break: break-all;
+  }
+}

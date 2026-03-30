@@ -241,12 +241,12 @@ function PatientPage() {
                 <tbody>
                   {records.map((record) => (
                     <tr key={record.id}>
-                      <td>{record.filename}</td>
-                      <td>{new Date(record.created_at).toLocaleDateString()}</td>
-                      <td className="hash-cell">
+                      <td data-label="Filename">{record.filename}</td>
+                      <td data-label="Date">{new Date(record.created_at).toLocaleDateString()}</td>
+                      <td data-label="IPFS Hash" className="hash-cell">
                         {record.ipfs_hash.slice(0, 10)}...{record.ipfs_hash.slice(-8)}
                       </td>
-                      <td>
+                      <td data-label="Action">
                         <a
                           href={record.ipfs_url}
                           target="_blank"
