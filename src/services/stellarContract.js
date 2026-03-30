@@ -217,7 +217,7 @@ export const getRecordsByUploader = async (uploaderAddress) => {
         : [],
     };
   } catch (error) {
-    console.error('Error fetching records:', error);
+    console.error('Error fetching records:', error?.message || error?.toString() || error);
     return { success: true, recordIds: [] };
   }
 };

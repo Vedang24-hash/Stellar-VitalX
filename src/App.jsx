@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { connectWallet, disconnectWallet, getWalletAddress, checkAllowed } from "./services/stellarWallet";
+import { connectWallet, disconnectWallet, getWalletAddress, checkAllowed, isFreighterInstalled } from "./services/stellarWallet";
 import "./styles/App.css";
 
 function App() {
@@ -11,26 +11,19 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user was previously connected
     const checkPreviousConnection = async () => {
       const savedAddress = getWalletAddress();
-      
-      // Clear invalid [object Object] entries
       if (savedAddress && savedAddress.includes('[object')) {
         disconnectWallet();
         return;
       }
-      
       if (savedAddress) {
         try {
-          // Verify the connection is still valid
           const allowed = await checkAllowed();
-          
           if (allowed) {
             setWalletAddress(savedAddress);
             setAuthenticated(true);
           } else {
-            // Clear invalid connection
             disconnectWallet();
           }
         } catch (error) {
@@ -38,23 +31,30 @@ function App() {
         }
       }
     };
-
     checkPreviousConnection();
   }, []);
+
+  const handleInstallClick = () => {
+    window.open("https://www.freighter.app/", "_blank");
+  };
 
   const handleConnectWallet = async () => {
     setIsConnecting(true);
     setErrorMessage("");
 
     try {
-      // Connect to Freighter - this will show the popup
+      const installed = await isFreighterInstalled();
+      if (!installed) {
+        setErrorMessage("not_installed");
+        return;
+      }
+
       const address = await connectWallet();
 
       if (!address) {
         throw new Error("No address returned from Freighter");
       }
 
-      // Update state
       setWalletAddress(address);
       setAuthenticated(true);
       setErrorMessage("");
@@ -62,17 +62,13 @@ function App() {
     } catch (error) {
       console.error("❌ Connection error:", error);
 
-      let errorMsg = "";
-
-      if (error.message.includes("rejected") || error.message.includes("declined") || error.message.includes("denied")) {
-        errorMsg = "You rejected the connection request.\n\nPlease try again and click 'Approve' in the Freighter popup.";
-      } else if (error.message.includes("not installed")) {
-        errorMsg = "Freighter wallet is not installed.\n\nPlease install Freighter from:\nhttps://www.freighter.app/\n\nAfter installation, refresh this page.";
+      if (error.message.includes("not installed")) {
+        setErrorMessage("not_installed");
+      } else if (error.message.includes("rejected") || error.message.includes("declined") || error.message.includes("denied")) {
+        setErrorMessage("rejected");
       } else {
-        errorMsg = `Connection failed: ${error.message}\n\nPlease make sure:\n• Freighter extension is installed\n• Freighter is unlocked\n• You approve the connection request`;
+        setErrorMessage("failed");
       }
-
-      setErrorMessage(errorMsg);
     } finally {
       setIsConnecting(false);
     }
@@ -111,14 +107,33 @@ function App() {
         <div className="card">
           <h4>Stellar Healthcare Records</h4>
 
-          {errorMessage && (
+          {errorMessage === "not_installed" && (
+            <div className="error-message">
+              <strong>⚠️ Freighter Not Installed</strong>
+              <p>Install the Freighter browser extension, then refresh this page to connect your wallet.</p>
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
+                <button onClick={handleInstallClick} className="install-button">
+                  Install Freighter
+                </button>
+                <button onClick={() => window.location.reload()} className="install-button" style={{ background: "#2563eb" }}>
+                  Refresh Page
+                </button>
+              </div>
+            </div>
+          )}
+
+          {errorMessage === "rejected" && (
+            <div className="error-message">
+              <strong>⚠️ Connection Rejected</strong>
+              <p>You declined the connection request. Click "Connect Wallet" and approve in the Freighter popup.</p>
+            </div>
+          )}
+
+          {errorMessage === "failed" && (
             <div className="error-message">
               <strong>⚠️ Connection Failed</strong>
-              <p style={{ whiteSpace: 'pre-line' }}>{errorMessage}</p>
-              <button
-                onClick={() => window.open("https://www.freighter.app/", "_blank")}
-                className="install-button"
-              >
+              <p>Make sure Freighter is installed, unlocked, and you approve the connection request.</p>
+              <button onClick={handleInstallClick} className="install-button">
                 Install Freighter
               </button>
             </div>

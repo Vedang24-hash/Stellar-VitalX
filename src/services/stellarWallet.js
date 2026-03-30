@@ -8,6 +8,22 @@ import {
 } from "@stellar/freighter-api";
 
 /**
+ * Check if Freighter is installed (async — uses the official API)
+ */
+export const isFreighterInstalled = async () => {
+  try {
+    const result = await isConnected();
+    // v6 returns { isConnected: bool }, older versions return bool directly
+    if (typeof result === 'object' && result !== null) {
+      return result.isConnected === true;
+    }
+    return result === true;
+  } catch {
+    return false;
+  }
+};
+
+/**
  * Connect to Freighter Wallet
  * This will trigger the Freighter popup for user approval
  */
@@ -15,8 +31,19 @@ export const connectWallet = async () => {
   try {
     console.log("🔄 Connecting to Freighter...");
 
-    // Request access - this triggers the Freighter popup
-    const accessGranted = await requestAccess();
+    // Bail early if extension isn't installed
+    const installed = await isFreighterInstalled();
+    if (!installed) {
+      throw new Error("Freighter is not installed");
+    }
+
+    // Request access — triggers the Freighter popup
+    const accessGranted = await Promise.race([
+      requestAccess(),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Freighter is not installed")), 8000)
+      ),
+    ]);
     
     if (!accessGranted) {
       throw new Error("Access to Freighter was denied");
@@ -52,7 +79,8 @@ export const connectWallet = async () => {
       throw new Error("You rejected the connection request. Please try again and approve.");
     }
 
-    throw new Error("Freighter connection failed. Make sure the extension is installed and unlocked.");
+    // Re-throw as-is so callers can inspect the message (e.g. "not installed")
+    throw error;
   }
 };
 
@@ -131,9 +159,3 @@ export const signTx = async (xdr, networkPassphrase) => {
   }
 };
 
-/**
- * Check if Freighter is installed
- */
-export const isFreighterInstalled = () => {
-  return typeof window !== 'undefined' && typeof window.freighterApi !== 'undefined';
-};
